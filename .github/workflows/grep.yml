@@ -24,11 +24,13 @@ jobs:
           curl -L "https://extensions.turbowarp.org/generated-metadata/extensions-v0.json" -o "extensions-v1.json"
           sleep 1
           jq . extensions-v1.json > extensions-v0.json
-          cp extensions-v0.json generated-metadata/extensions-v0.json
+          mkdir -p generated-metadata
+          sleep 1
+          cp -rfv extensions-v0.json generated-metadata/extensions-v0.json
           sleep 1
           curl -L "https://github.com/TurboWarp/extensions/archive/refs/heads/master.zip" -o master.zip
           unzip master.zip -d master
-          mkdir -p generated-metadata
+          
           ls -F master/extensions-master/
           mkdir -p images
           mkdir -p extensions
