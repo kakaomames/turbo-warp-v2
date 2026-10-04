@@ -42,7 +42,7 @@ jobs:
           echo "=== URLの置き換え処理を実行中... ==="
           
           TARGET_URL="https://extensions.turbowarp.org/"
-          NEW_PATH="https://kakaomames.github.io/turbowarp/"
+          NEW_PATH="https://kakaomames.github.io/turbo-warp-v2/"
           TU="https://packager.turbowarp.org/"
           NU="https://kakaomames.github.io/Scratch-packager/"
           # リポジトリ内のすべての .js ファイルに対して置換を実行
