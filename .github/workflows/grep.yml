@@ -1,0 +1,75 @@
+name: Replace URL and Commit
+
+on:
+  workflow_dispatch: # 手動実行
+  
+permissions:
+  contents: write
+
+jobs:
+  replace-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのコードをチェックアウト（書き込み権限付き）
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Prettierを使ってJSファイルを整形（行を分ける）
+      - name: Format JavaScript files
+        run: |
+          echo "=== JSファイルを整形中... ==="
+          # npx prettier --write "**/*.js" --log-level=warn || true
+          curl -L "https://extensions.turbowarp.org/generated-metadata/extensions-v0.json" -o "extensions-v1.json"
+          sleep 1
+          jq . extensions-v1.json > extensions-v0.json
+          cp extensions-v0.json generated-metadata/extensions-v0.json
+          sleep 1
+          curl -L "https://github.com/TurboWarp/extensions/archive/refs/heads/master.zip" -o master.zip
+          unzip master.zip -d master
+          ls -F master/extensions-master/
+          mkdir -p images
+          mkdir -p extensions
+          cp -rf master/extensions-master/images/* ./images/
+          cp -rf master/extensions-master/extensions/* ./extensions/
+          cp -rf ./extensions/* ./
+          rm -rf master*
+
+      # 3. sed コマンドを使って、対象のURLを「./extensions-v0.json」に一括置換
+      - name: Replace TurboWarp URL to Local Path
+        run: |
+          echo "=== URLの置き換え処理を実行中... ==="
+          
+          TARGET_URL="https://extensions.turbowarp.org/"
+          NEW_PATH="https://kakaomames.github.io/turbowarp/"
+          TU="https://packager.turbowarp.org/"
+          NU="https://kakaomames.github.io/Scratch-packager/"
+          # リポジトリ内のすべての .js ファイルに対して置換を実行
+          find . -name "*.js" -exec sed -i "s|$TARGET_URL|$NEW_PATH|g" {} +
+          find . -exec sed -i "s|$TU|$NU|g" {} +
+
+      # 4. 置き換えが正しく成功したか、確認のために再検索
+      - name: Verify Replacement
+        run: |
+          echo "=== 置き換え後の確認検索 ==="
+          grep -rn "./extensions-v0.json" . || true
+
+      # 5. 変更されたファイルを自動でコミットしてリポジトリにプッシュ（保存）
+      - name: Commit and Push Changes
+        run: |
+          echo "=== 変更をリポジトリにプッシュ中... ==="
+          
+          # GitHub Actions用の共通Botアカウントを設定
+          git config --local user.email "github-actions[bot]@://github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # 変更がある場合のみコミットしてプッシュ
+          git add .
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore: update extensions-v0.json path to local reference"
+            git push origin HEAD
+            echo "変更を保存しました！"
+          else
+            echo "変更はありませんでした。"
+          fi
