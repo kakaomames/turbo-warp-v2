@@ -49,8 +49,11 @@ jobs:
           TU="https://packager.turbowarp.org/"
           NU="https://kakaomames.github.io/Scratch-packager/"
           # リポジトリ内のすべての .js ファイルに対して置換を実行
-          find . -name "*.js" -exec sed -i "s|$TARGET_URL|$NEW_PATH|g" {} +
-          find . -exec sed -i "s|$TU|$NU|g" {} +
+          # 1つ目の置換（.js ファイルのみ対象）
+          find . -name "*.js" -type f -exec sed -i "s|$TARGET_URL|$NEW_PATH|g" {} +
+          
+          # 2つ目の置換（修正点: -name "*.js" -type f を追加）
+          find . -name "*.js" -type f -exec sed -i "s|$TU|$NU|g" {} +
 
       # 4. 置き換えが正しく成功したか、確認のために再検索
       - name: Verify Replacement
