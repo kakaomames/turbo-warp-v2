@@ -8,23 +8,22 @@
 
   class GoogleSinglePathAuthBridge {
     constructor() {
-      // あなたのクライアントIDをデフォルト値に固定
       this.clientId = '://googleusercontent.com';
       this.isLibraryLoaded = false;
       this.tokenClient = null;
       this.selectedScopes = new Set();
+      this.latestResponseJson = '{}'; // 最後に取得した生レスポンスを保持
 
-      // 起動時にGoogle公式の gsi/client ライブラリを自動読み込み
       this._loadGsiLibrary();
     }
 
     getInfo() {
       return {
         id: 'googleSinglePathAuthBridge',
-        name: 'Google Auth (1Path-1Block)',
-        color1: '#EA4335', // Googleレッド
+        name: 'Google Auth (JSON-Return)',
+        color1: '#EA4335',
         blocks: [
-          // ⚙️ 初期設定・スコープ追加（ここはコントロール用）
+          // ⚙️ 初期設定・スコープ追加
           {
             opcode: 'setClientId',
             blockType: Scratch.BlockType.COMMAND,
@@ -35,56 +34,51 @@
             opcode: 'addScope',
             blockType: Scratch.BlockType.COMMAND,
             text: 'auth: 権限 [SCOPE_MENU] を追加する',
+            arguments: { SCOPE_MENU: { type: Scratch.ArgumentType.STRING, menu: 'scopeItems', defaultValue: 'GAMES_LITE' } }
+          },
+
+          // ==================== 🔄 改良：JSON返却型ログイン ====================
+          {
+            opcode: 'requestLoginJson',
+            blockType: Scratch.BlockType.REPORTER, // 値（JSON）を返すブロックに変更！
+            text: 'auth: パス [/gsi/client] ポップアップでログインしてデータを取得'
+          },
+
+          // ==================== 🛠️ 追加：JSON分解用便利ブロック ====================
+          {
+            opcode: 'parseJsonField',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'JSONツール: [JSON_TEXT] から項目 [KEY] の値を抽出',
             arguments: {
-              SCOPE_MENU: {
-                type: Scratch.ArgumentType.STRING,
-                menu: 'scopeItems',
-                defaultValue: 'GAMES_LITE'
-              }
+              JSON_TEXT: { type: Scratch.ArgumentType.STRING, defaultValue: '{"access_token": "abc", "expires_in": 3600}' },
+              KEY: { type: Scratch.ArgumentType.STRING, defaultValue: 'access_token' }
             }
           },
 
-          // ==================== 1パス ＝ 1ブロック（全6エンドポイント） ====================
-          
-          // パス1: ポップアップ認証を起動しトークンを直接取得するエンドポイント
-          {
-            opcode: 'requestLogin',
-            blockType: Scratch.BlockType.COMMAND,
-            text: 'auth: パス [/gsi/client] ポップアップでログインを起動'
-          },
-
-          // パス2: トークンの有効性と情報を検証するエンドポイント
+          // ==================== 他のエンドポイント（1パス1ブロック） ====================
           {
             opcode: 'auth_token_info',
             blockType: Scratch.BlockType.REPORTER,
             text: 'auth: パス [/tokeninfo] トークン [TOKEN] の有効性を検証',
             arguments: { TOKEN: { type: Scratch.ArgumentType.STRING, defaultValue: 'access_token_here' } }
           },
-
-          // パス3: 不要になったトークンを破棄・無効化するエンドポイント
           {
             opcode: 'auth_token_revoke',
             blockType: Scratch.BlockType.REPORTER,
             text: 'auth: パス [/revoke] トークン [TOKEN] を失効させる',
             arguments: { TOKEN: { type: Scratch.ArgumentType.STRING, defaultValue: 'token_to_revoke_here' } }
           },
-
-          // パス4: Googleの最新の公開暗号鍵リスト（JWK）をロードするエンドポイント
           {
             opcode: 'auth_certs',
             blockType: Scratch.BlockType.REPORTER,
             text: 'auth: パス [/v1/certs] 公開暗号鍵リストを取得'
           },
-
-          // パス5: トークンからプロフィール情報を引き出すエンドポイント（v3）
           {
             opcode: 'auth_userinfo',
             blockType: Scratch.BlockType.REPORTER,
             text: 'auth: パス [/v3/userinfo] トークン [TOKEN] から基本ユーザー情報を取得',
             arguments: { TOKEN: { type: Scratch.ArgumentType.STRING, defaultValue: 'access_token_here' } }
           },
-
-          // パス6: 状態確認用（ログイン完了フラグ）
           {
             opcode: 'getLoginStatus',
             blockType: Scratch.BlockType.BOOLEAN,
@@ -106,14 +100,10 @@
     }
 
     _loadGsiLibrary() {
-      if (document.querySelector(`script[src*="gsi/client"]`)) {
-        this.isLibraryLoaded = true;
-        return;
-      }
+      if (document.querySelector(`script[src*="gsi/client"]`)) { this.isLibraryLoaded = true; return; }
       const script = document.createElement('script');
       script.src = `${_p}${_gsi_src}`;
-      script.async = true;
-      script.defer = true;
+      script.async = true; script.defer = true;
       script.onload = () => { this.isLibraryLoaded = true; };
       document.head.appendChild(script);
     }
@@ -130,42 +120,16 @@
       }
     }
 
-    addScope(args) {
-      const url = this._getScopeUrl(args.SCOPE_MENU);
-      this.selectedScopes.add(url);
-    }
+    addScope(args) { this.selectedScopes.add(this._getScopeUrl(args.SCOPE_MENU)); }
 
-    // ─── 🚀 共通通信コア関数（://googleapis.com 専用） ───
-    async _request(path, method = 'POST', body = null, isJson = false) {
-      const url = `${_p}oauth2.${_g}${path}`;
-      const headers = {};
-      if (isJson) {
-        headers['Content-Type'] = 'application/json';
-      } else {
-        headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      }
-      const config = { method, headers };
-      if (body) {
-        config.body = typeof body === 'string' ? body : new URLSearchParams(body).toString();
-      }
-      try {
-        const response = await fetch(url, config);
-        return await response.text();
-      } catch (e) {
-        return `authエラー: ${e.message}`;
-      }
-    }
-
-    // パス1: /gsi/client (ポップアップ認証実行)
-    async requestLogin() {
+    // ✨ ログイン実行時に、結果をJSONテキストで直接返すロジック
+    async requestLoginJson() {
       if (!this.isLibraryLoaded || !window.google || !window.google.accounts) {
-        alert("Googleの認証ライブラリがまだ読み込み中です。数秒待ってから再試行してください。");
-        return;
+        return '{"error": "library_not_loaded"}';
       }
       const scopeString = Array.from(this.selectedScopes).join(' ');
       if (!scopeString) {
-        alert("エラー: ログインする前に、権限を1つ以上追加してください。");
-        return;
+        return '{"error": "scope_missing"}';
       }
       return new Promise((resolve) => {
         this.tokenClient = window.google.accounts.oauth2.initTokenClient({
@@ -174,49 +138,54 @@
           include_granted_scopes: false,
           callback: (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
+              // バックアップ用の自動共有も走らせておく
               localStorage.setItem('_g_api_token', tokenResponse.access_token);
-              console.log("トークンを取得し、ブラウザの共有メモリに保存しました。");
+              // 生のレスポンスオブジェクトを丸ごと文字列化して返す
+              this.latestResponseJson = JSON.stringify(tokenResponse);
             } else {
-              console.log("トークンの取得に失敗しました。");
+              this.latestResponseJson = '{"error": "authentication_failed"}';
             }
-            resolve();
+            resolve(this.latestResponseJson);
           },
         });
         this.tokenClient.requestAccessToken();
       });
     }
 
-    // パス2: /tokeninfo
-    async auth_token_info(args) {
-      return this._request(`/tokeninfo?access_token=${encodeURIComponent(args.TOKEN)}`, 'POST', null);
-    }
-
-    // パス3: /revoke
-    async auth_token_revoke(args) {
-      const body = { token: args.TOKEN };
-      return this._request('/revoke', 'POST', body);
-    }
-
-    // パス4: /v1/certs
-    async auth_certs() {
-      return this._request('/v1/certs', 'GET', null);
-    }
-
-    // パス5: /v3/userinfo
-    async auth_userinfo(args) {
-      const url = `${_p}oauth2.${_g}/v3/userinfo?access_token=${encodeURIComponent(args.TOKEN)}`;
+    // ✨ 返ってきたJSONから任意の項目を抜き出す関数
+    parseJsonField(args) {
       try {
-        const response = await fetch(url, { method: 'GET' });
-        return await response.text();
+        const obj = JSON.parse(args.JSON_TEXT);
+        if (obj && obj[args.KEY] !== undefined) {
+          return String(obj[args.KEY]);
+        }
+        return '';
       } catch (e) {
-        return `userinfoエラー: ${e.message}`;
+        return 'JSONエラー';
       }
     }
 
-    // パス6: ステータス確認
-    getLoginStatus() {
-      return !!localStorage.getItem('_g_api_token');
+    async _request(path, method = 'POST', body = null) {
+      const url = `${_p}oauth2.${_g}${path}`;
+      const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      const config = { method, headers };
+      if (body) config.body = new URLSearchParams(body).toString();
+      try {
+        const response = await fetch(url, config);
+        return await response.text();
+      } catch (e) { return `authエラー: ${e.message}`; }
     }
+
+    async auth_token_info(args) { return this._request(`/tokeninfo?access_token=${encodeURIComponent(args.TOKEN)}`, 'POST', null); }
+    async auth_token_revoke(args) { return this._request('/revoke', 'POST', { token: args.TOKEN }); }
+    async auth_certs() { return this._request('/v1/certs', 'GET', null); }
+    async auth_userinfo(args) {
+      try {
+        const response = await fetch(`${_p}oauth2.${_g}/v3/userinfo?access_token=${encodeURIComponent(args.TOKEN)}`);
+        return await response.text();
+      } catch (e) { return `userinfoエラー: ${e.message}`; }
+    }
+    getLoginStatus() { return !!localStorage.getItem('_g_api_token'); }
   }
 
   Scratch.extensions.register(new GoogleSinglePathAuthBridge());
