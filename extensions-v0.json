@@ -1,6 +1,44 @@
 {
   "extensions": [
     {
+      "slug": "googleapis1",
+      "id": "googleapis1",
+      "name": "GoogleAPIs1",
+      "description": "GoogleAPIs連携のうちの一つ",
+      "nameTranslations": {
+        "ja": "GoogleAPIs1"
+      },
+      "descriptionTranslations": {
+        "ja": "GoogleAPIs連携の1つ目となります"
+      },
+      "image": "images/lab/text.svg",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "kakaomames.github.io"
+        }
+      ]
+    },
+    {
+      "slug": "googleapis2",
+      "id": "googleapis2",
+      "name": "GoogleAPIs2",
+      "description": "GoogleAPIs連携のうちの二つ",
+      "nameTranslations": {
+        "ja": "GoogleAPIs1"
+      },
+      "descriptionTranslations": {
+        "ja": "GoogleAPIs連携の2つ目となります"
+      },
+      "image": "images/lab/text.svg",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "kakaomames.github.io"
+        }
+      ]
+    },
+    {
       "slug": "lab/text",
       "id": "text",
       "name": "Animated Text",
