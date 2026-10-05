@@ -39,10 +39,29 @@
       ]
     },
     {
+      "slug": "googleapis3",
+      "id": "googleapis3",
+      "name": "GoogleAPIs3",
+      "description": "GoogleAPIs連携のうちの三つ",
+      "nameTranslations": {
+        "ja": "GoogleAPIs3"
+      },
+      "descriptionTranslations": {
+        "ja": "GoogleAPIs連携の3つ目となります"
+      },
+      "image": "images/lab/text.svg",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "kakaomames.github.io"
+        }
+      ]
+    },
+    {
       "slug": "lab/text",
       "id": "text",
-      "name": "Animated Text",
-      "description": "An easy way to display and animate text. Compatible with Scratch Lab's Animated Text experiment.",
+      "name": "アニメーションテキスト",
+      "description": "テキストを表示し、アニメーション化する簡単な方法です。Scratch Lab のアニメーションテキスト実験と互換性があります。",
       "nameTranslations": {
         "de": "Animierter Text",
         "es": "Texto Animado",
