@@ -571,7 +571,7 @@
       ]
     },
     {
-      "slug": "local-storage",
+      "slug": "localstorage",
       "id": "localstorage",
       "name": "Local Storage",
       "description": "Store data persistently. Like cookies, but better.",
