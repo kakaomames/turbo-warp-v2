@@ -3,7 +3,7 @@
     {
       "slug": "googleapis1",
       "id": "googleapis1",
-      "name": "GoogleAPIs1",
+      "name": "File Googleapis連携",
       "description": "GoogleAPIs連携のうちの一つ",
       "nameTranslations": {
         "ja": "GoogleAPIs1"
@@ -22,7 +22,7 @@
     {
       "slug": "googleapis2",
       "id": "googleapis2",
-      "name": "GoogleAPIs2",
+      "name": "Games GoogleAPIs連携",
       "description": "GoogleAPIs連携のうちの二つ",
       "nameTranslations": {
         "ja": "GoogleAPIs1"
@@ -41,7 +41,7 @@
     {
       "slug": "googleapis3",
       "id": "googleapis3",
-      "name": "GoogleAPIs3",
+      "name": "Login GoogleAPIs連携",
       "description": "GoogleAPIs連携のうちの三つ",
       "nameTranslations": {
         "ja": "GoogleAPIs3"
