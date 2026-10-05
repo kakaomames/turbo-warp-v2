@@ -11,15 +11,16 @@
       this.proj = 'my-project-id';
       this.loc = 'us-central1';
       this.inst = 'my-instance';
+      this.manualToken = ''; // 手動注入されたトークンを保持する変数
     }
 
     getInfo() {
       return {
         id: 'googleSinglePathFileBridge',
-        name: 'Google File (1Path-1Block)',
+        name: 'Google File (Manual-Token)',
         color1: '#4285F4', // Googleブルー
         blocks: [
-          // ==================== ⚙️ 初期設定ブロック ====================
+          // ==================== ⚙️ 初期設定・手動トークン設定 ====================
           {
             opcode: 'setEnv',
             blockType: Scratch.BlockType.COMMAND,
@@ -28,6 +29,15 @@
               PRJ: { type: Scratch.ArgumentType.STRING, defaultValue: 'my-project-id' },
               LOC: { type: Scratch.ArgumentType.STRING, defaultValue: 'us-central1' },
               INS: { type: Scratch.ArgumentType.STRING, defaultValue: 'my-instance' }
+            }
+          },
+          // 手動で分解したトークンを直接ブチ込めるリリーフ用ブロック
+          {
+            opcode: 'setManualToken',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'file: アクセストークンを [TOK] に直接設定（手動リリーフ用）',
+            arguments: {
+              TOK: { type: Scratch.ArgumentType.STRING, defaultValue: 'ya29.a0AfH6S...' }
             }
           },
 
@@ -115,13 +125,19 @@
       this.inst = args.INS;
     }
 
+    // 手動トークンを設定する関数
+    setManualToken(args) {
+      this.manualToken = args.TOK;
+      console.log("file: 手動設定されたトークンを適用しました。");
+    }
+
     // ─── 🚀 共通通信用コア関数 ───
     async _request(path, method = 'GET', body = null) {
       const url = `${_p}file.${_g}${path}`;
       const headers = { 'Content-Type': 'application/json' };
       
-      // Authモジュールで取得した共通トークンを読み出す
-      const token = localStorage.getItem('_g_api_token');
+      // 最優先で手動設定されたトークンを使い、無ければlocalStorageから自動読込する
+      const token = this.manualToken || localStorage.getItem('_g_api_token');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -139,18 +155,16 @@
       }
     }
 
-    // 各ブロックに対応するエンドポイント処理（完全分散）
+    // 各エンドポイント処理
     async f_inst_list() { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances`); }
     async f_inst_get() { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}`); }
     async f_inst_create(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances?instanceId=${this.inst}`, 'POST', args.BODY); }
     async f_inst_delete() { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}`, 'DELETE'); }
     async f_inst_patch(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}`, 'PATCH', args.BODY); }
-    
     async f_back_list() { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/backups`); }
     async f_back_get(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/backups/${args.NAME}`); }
     async f_back_create(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/backups?backupId=${args.NAME}`, 'POST', '{}'); }
     async f_back_delete(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/backups/${args.NAME}`, 'DELETE'); }
-
     async f_snap_list() { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}/snapshots`); }
     async f_snap_get(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}/snapshots/${args.NAME}`); }
     async f_snap_create(args) { return this._request(`/v1/projects/${this.proj}/locations/${this.loc}/instances/${this.inst}/snapshots?snapshotId=${args.NAME}`, 'POST', '{}'); }
