@@ -1,6 +1,25 @@
 {
   "extensions": [
     {
+      "slug": "fetch2",
+      "id": "fetch2",
+      "name": "非同期 fetch通信",
+      "description": "非同期でfetchをしよう！",
+      "nameTranslations": {
+        "ja": "Fetch2"
+      },
+      "descriptionTranslations": {
+        "ja": "非同期fetchとなります"
+      },
+      "image": "images/kakaomames/fetch2.png",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "kakaomames.github.io"
+        }
+      ]
+    },
+    {
       "slug": "googleapis1",
       "id": "googleapis1",
       "name": "File Googleapis連携",
