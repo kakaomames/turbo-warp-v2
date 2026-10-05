@@ -30,7 +30,7 @@
     }
   };
 
-  const STORAGE_PREFIX = "extensions.turbowarp.org/local-storage:";
+  const STORAGE_PREFIX = "kakaomames.github.io/local-storage:";
   const getStorageKey = () => `${STORAGE_PREFIX}${getNamespace()}`;
 
   /**
