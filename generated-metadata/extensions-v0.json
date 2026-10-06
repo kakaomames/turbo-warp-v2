@@ -95,7 +95,7 @@
         }
       ]
     },
-      {
+    {
       "slug": "googleapis4",
       "id": "googleapis4",
       "name": "Gemini GoogleAPIs連携",
@@ -105,6 +105,25 @@
       },
       "descriptionTranslations": {
         "ja": "GoogleAPIs連携の4つ目となります"
+      },
+      "image": "images/kakaomames/g.svg",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "https://kakaomames.github.io"
+        }
+      ]
+    },
+    {
+      "slug": "googleapis5",
+      "id": "googleapis5",
+      "name": "drive GoogleAPIs連携",
+      "description": "GoogleAPIs連携のうちの5つ",
+      "nameTranslations": {
+        "ja": "GoogleAPIs5"
+      },
+      "descriptionTranslations": {
+        "ja": "GoogleAPIs連携の5つ目となります"
       },
       "image": "images/kakaomames/g.svg",
       "by": [
