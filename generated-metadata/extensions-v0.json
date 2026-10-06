@@ -15,7 +15,7 @@
       "by": [
         {
           "name": "kakaomames",
-          "link": "kakaomames.github.io"
+          "link": "https://kakaomames.github.io"
         }
       ]
     },
@@ -34,7 +34,7 @@
       "by": [
         {
           "name": "kakaomames",
-          "link": "kakaomames.github.io"
+          "link": "https://kakaomames.github.io"
         }
       ]
     },
@@ -53,7 +53,7 @@
       "by": [
         {
           "name": "kakaomames",
-          "link": "kakaomames.github.io"
+          "link": "https://kakaomames.github.io"
         }
       ]
     },
@@ -72,7 +72,26 @@
       "by": [
         {
           "name": "kakaomames",
-          "link": "kakaomames.github.io"
+          "link": "https://kakaomames.github.io"
+        }
+      ]
+    },
+      {
+      "slug": "googleapis4",
+      "id": "googleapis4",
+      "name": "Gemini GoogleAPIs連携",
+      "description": "GoogleAPIs連携のうちの4つ",
+      "nameTranslations": {
+        "ja": "GoogleAPIs4"
+      },
+      "descriptionTranslations": {
+        "ja": "GoogleAPIs連携の4つ目となります"
+      },
+      "image": "images/kakaomames/g.svg",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "https://kakaomames.github.io"
         }
       ]
     },
