@@ -1,6 +1,25 @@
 {
   "extensions": [
     {
+      "slug": "wasm",
+      "id": "wasm",
+      "name": "非同期 wasm",
+      "description": "非同期でwasmをしよう！",
+      "nameTranslations": {
+        "ja": "Wasm"
+      },
+      "descriptionTranslations": {
+        "ja": "wasmとなります"
+      },
+      "image": "images/kakaomames/fetch2.png",
+      "by": [
+        {
+          "name": "kakaomames",
+          "link": "https://kakaomames.github.io"
+        }
+      ]
+    },
+    {
       "slug": "fetch2",
       "id": "fetch2",
       "name": "非同期 fetch通信",
