@@ -143,6 +143,125 @@
   };
 
   class LocalStorage {
+  getInfo() {
+    const ns = getNamespace();
+    const labelText = ns ? `ネームスペース: ${ns}` : "ネームスペースが設定されていません";
+
+    return {
+      id: "localstorage",
+      name: "ローカルストレージ",
+      docsURI: "https://kakaomames.github.io/turbo-warp-v2/local-storage",
+      blocks: [
+        {
+          blockType: Scratch.BlockType.LABEL,
+          text: labelText,
+        },
+        {
+          opcode: "get",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "ストレージから [KEY] の値を取得",
+          arguments: {
+            KEY: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: "スコア",
+            },
+          },
+        },
+        {
+          opcode: "set",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "ストレージの [KEY] を [VALUE] に設定",
+          arguments: {
+            KEY: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: "スコア",
+            },
+            VALUE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: "1000",
+            },
+          },
+        },
+        {
+          opcode: "remove",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "ストレージから [KEY] を削除",
+          arguments: {
+            KEY: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: "スコア",
+            },
+          },
+        },
+        {
+          opcode: "removeAll",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "ストレージのデータをすべて削除",
+        },
+        {
+          opcode: "whenChanged",
+          blockType: Scratch.BlockType.EVENT,
+          text: "別ウィンドウでストレージが変更されたとき",
+          isEdgeActivated: false,
+        },
+        "---",
+        {
+          opcode: "setProjectId",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "ネームスペースを [ID] に設定",
+          arguments: {
+            ID: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: ns || "プロジェクト名",
+            },
+          },
+        },
+      ],
+    };
+  }
+
+  setProjectId({ ID }) {
+    setNamespace(Scratch.Cast.toString(ID));
+  }
+
+  get({ KEY }) {
+    if (!validNamespace()) {
+      return "";
+    }
+    KEY = Scratch.Cast.toString(KEY);
+    if (!Object.prototype.hasOwnProperty.call(namespaceValues, KEY)) {
+      return "";
+    }
+    return namespaceValues[KEY];
+  }
+
+  set({ KEY, VALUE }) {
+    if (!validNamespace()) {
+      return "";
+    }
+    namespaceValues[Scratch.Cast.toString(KEY)] = VALUE;
+    saveToLocalStorage();
+  }
+
+  remove({ KEY }) {
+    if (!validNamespace()) {
+      return "";
+    }
+    delete namespaceValues[Scratch.Cast.toString(KEY)];
+    saveToLocalStorage();
+  }
+
+  removeAll() {
+    if (!validNamespace()) {
+      return "";
+    }
+    namespaceValues = Object.create(null);
+    saveToLocalStorage();
+  }
+}
+
+  
+  class LocalStorageaaa {
     getInfo() {
       return {
         id: "localstorage",
