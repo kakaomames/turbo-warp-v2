@@ -92,14 +92,14 @@
               { text: 'ゲーム機能（実績・リーダーボード）', value: 'GAMES_LITE' },
               { text: 'クラウドセーブ（Snapshotsデータ保存）', value: 'DRIVE_APPDATA' },
               { text: 'データベース（Datastoreデータ保存）', value: 'DATASTORE' },
-              { text: 'ファイル・ストレージ（Cloud Storage完全操作）', value: 'CLOUD_PLATFORM' }
-              { text: 'drive', value:'Drive' }
-              { text: 'YTChannnel', value:'ytchannel' }
-              { text: 'YTClip', value:'ytclip' }
-              { text: 'YTcomment', value:'ytcomment' }
-              { text: 'Mail', value:'Mail1' }
-              { text: '翻訳', value:'Transe' }
-              { text: 'sheet', value:'Sheet' }
+              { text: 'ファイル・ストレージ（Cloud Storage完全操作）', value: 'CLOUD_PLATFORM' },
+              { text: 'drive', value:'Drive' },
+              { text: 'YTChannnel', value:'ytchannel' },
+              { text: 'YTClip', value:'ytclip' },
+              { text: 'YTcomment', value:'ytcomment' },
+              { text: 'Mail', value:'Mail1' },
+              { text: '翻訳', value:'Transe' },
+              { text: 'sheet', value:'Sheet' },
               { text: 'カレンダー', value:'Calender' }
             ]
           }
