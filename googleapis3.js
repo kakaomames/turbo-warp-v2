@@ -93,6 +93,7 @@
               { text: 'クラウドセーブ（Snapshotsデータ保存）', value: 'DRIVE_APPDATA' },
               { text: 'データベース（Datastoreデータ保存）', value: 'DATASTORE' },
               { text: 'ファイル・ストレージ（Cloud Storage完全操作）', value: 'CLOUD_PLATFORM' }
+              { text: 'drive', value:'Drive' }
             ]
           }
         }
@@ -116,6 +117,7 @@
         case 'DRIVE_APPDATA':   return `${_p}www.${_g}/auth/drive.appdata`;
         case 'DATASTORE':       return `${_p}www.${_g}/auth/datastore`;
         case 'CLOUD_PLATFORM':  return `${_p}www.${_g}/auth/cloud-platform`;
+        case 'Drive':           return 'https://www.googleapis.com/auth/drive.file';
         default: return scopeKey;
       }
     }
