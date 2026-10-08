@@ -94,6 +94,13 @@
               { text: 'データベース（Datastoreデータ保存）', value: 'DATASTORE' },
               { text: 'ファイル・ストレージ（Cloud Storage完全操作）', value: 'CLOUD_PLATFORM' }
               { text: 'drive', value:'Drive' }
+              { text: 'YTChannnel', value:'ytchannel' }
+              { text: 'YTClip', value:'ytclip' }
+              { text: 'YTcomment', value:'ytcomment' }
+              { text: 'Mail', value:'Mail1' }
+              { text: '翻訳', value:'Transe' }
+              { text: 'sheet', value:'Sheet' }
+              { text: 'カレンダー', value:'Calender' }
             ]
           }
         }
@@ -118,6 +125,13 @@
         case 'DATASTORE':       return `${_p}www.${_g}/auth/datastore`;
         case 'CLOUD_PLATFORM':  return `${_p}www.${_g}/auth/cloud-platform`;
         case 'Drive':           return 'https://www.googleapis.com/auth/drive.file';
+        case 'Sheet' :          return 'https://www.googleapis.com/auth/spreadsheets';
+        case 'Calender':        return 'https://www.googleapis.com/auth/calendar';
+        case 'Mail1':           return 'https://www.googleapis.com/auth/gmail.modify';
+        case 'Transe':          return 'https://www.googleapis.com/auth/cloud-translation';
+        case 'ytchannel':       return 'https://www.googleapis.com/auth/dataportability.youtube.channel';
+        case 'ytcoment':        return 'https://www.googleapis.com/auth/dataportability.youtube.comments';
+        case 'ytclip':          return 'https://www.googleapis.com/auth/dataportability.youtube.clips';
         default: return scopeKey;
       }
     }
