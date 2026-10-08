@@ -180,8 +180,8 @@
     {
       "slug": "lab/face-sensing",
       "id": "faceSensing",
-      "name": "Face Sensing",
-      "description": "Sense faces with the camera.",
+      "name": "顔検出",
+      "description": "カメラに向かって顔を向けてください.",
       "nameTranslations": {
         "de": "Gesichtserkennung",
         "es": "Sensor de Cara",
@@ -216,7 +216,7 @@
     {
       "slug": "lab/video-sprites",
       "id": "videoSprites",
-      "name": "Video Sprites",
+      "name": "ビデオスプライト",
       "description": "Replace sprites with a live video feed. Compatible with Scratch Lab's Video Sprites experiment.",
       "nameTranslations": {
         "fi": "Videohahmot",
