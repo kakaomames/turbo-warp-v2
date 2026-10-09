@@ -1,8 +1,6 @@
-// Name: Local Storage
+// Name: Local Storage (Japanese Fixed)
 // ID: localstorage
-// Description: Store data persistently. Like cookies, but better.
-// By: infernostars
-// By: GarboMuffin
+// Description: Store data persistently without translation crashes.
 // License: MIT AND MPL-2.0
 
 (function (Scratch) {
@@ -24,6 +22,256 @@
     };
     readFromStorage();
 
+    if (Scratch.vm.extensionManager.isExtensionLoaded("localstorage")) {
+      Scratch.vm.extensionManager.refreshBlocks("localstorage");
+    }
+  };
+
+  const STORAGE_PREFIX = "kakaomames.github.io/local-storage:";
+  const getStorageKey = () => `${STORAGE_PREFIX}${getNamespace()}`;
+
+  /**
+   * @type {Record<string, string|number|boolean>}
+   */
+  let namespaceValues = Object.create(null);
+
+  const readFromStorage = () => {
+    namespaceValues = Object.create(null);
+    try {
+      const data = localStorage.getItem(getStorageKey());
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (parsed && parsed.data) {
+          for (const [key, value] of Object.entries(parsed.data)) {
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              namespaceValues[key] = value;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error reading from local storage", error);
+    }
+  };
+
+  const saveToLocalStorage = () => {
+    try {
+      if (Object.keys(namespaceValues).length > 0) {
+        localStorage.setItem(
+          getStorageKey(),
+          JSON.stringify({
+            time: Math.round(Date.now() / 1000),
+            data: namespaceValues,
+          })
+        );
+      } else {
+        localStorage.removeItem(getStorageKey());
+      }
+    } catch (error) {
+      console.error("Error saving to local storage", error);
+    }
+  };
+
+  window.addEventListener("storage", (event) => {
+    if (
+      getNamespace() &&
+      event.key === getStorageKey() &&
+      event.storageArea === localStorage
+    ) {
+      readFromStorage();
+      Scratch.vm.runtime.startHats("localstorage_whenChanged");
+    }
+  });
+
+  const generateRandomNamespace = () => {
+    const soup = "0123456789abcdef";
+    let id = "";
+    for (let i = 0; i < 16; i++) {
+      id += soup[Math.floor(Math.random() * soup.length)];
+    }
+    return id;
+  };
+
+  const prepareInitialNamespace = () => {
+    if (getNamespace()) {
+      readFromStorage();
+    } else {
+      setNamespace(generateRandomNamespace());
+    }
+  };
+
+  Scratch.vm.runtime.on("PROJECT_LOADED", () => {
+    prepareInitialNamespace();
+  });
+
+  Scratch.vm.runtime.on("RUNTIME_DISPOSED", () => {
+    namespaceValues = Object.create(null);
+  });
+
+  prepareInitialNamespace();
+
+  let lastNamespaceWarning = 0;
+  const validNamespace = () => {
+    const valid = !!getNamespace();
+    if (!valid && Date.now() - lastNamespaceWarning > 3000) {
+      alert("ローカルストレージ拡張機能: 他のブロックを使用する前に「ネームスペースを設定する」ブロックを実行する必要があります。");
+      lastNamespaceWarning = Date.now();
+    }
+    return valid;
+  };
+
+  class LocalStorage {
+    getInfo() {
+      const ns = getNamespace();
+      const labelText = ns ? `ネームスペース: ${ns}` : "ネームスペースが設定されていません";
+
+      return {
+        id: "localstorage",
+        name: "ローカルストレージ",
+        docsURI: "https://github.io",
+        blocks: [
+          {
+            blockType: Scratch.BlockType.LABEL,
+            text: labelText,
+          },
+          {
+            opcode: "get",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "ストレージから [KEY] の値を取得",
+            arguments: {
+              KEY: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "スコア",
+              },
+            },
+          },
+          {
+            opcode: "set",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "ストレージの [KEY] を [VALUE] に設定",
+            arguments: {
+              KEY: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "スコア",
+              },
+              VALUE: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "1000",
+              },
+            },
+          },
+          {
+            opcode: "remove",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "ストレージから [KEY] を削除",
+            arguments: {
+              KEY: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "スコア",
+              },
+            },
+          },
+          {
+            opcode: "removeAll",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "ストレージのデータをすべて削除",
+          },
+          {
+            opcode: "whenChanged",
+            blockType: Scratch.BlockType.EVENT,
+            text: "别ウィンドウでストレージが変更されたとき",
+            isEdgeActivated: false,
+          },
+          "---",
+          {
+            opcode: "setProjectId",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "ネームスペースを [ID] に設定",
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: ns || "プロジェクト名",
+              },
+            },
+          },
+        ],
+      };
+    }
+
+    setProjectId({ ID }) {
+      setNamespace(Scratch.Cast.toString(ID));
+    }
+
+    get({ KEY }) {
+      if (!validNamespace()) {
+        return "";
+      }
+      KEY = Scratch.Cast.toString(KEY);
+      if (!Object.prototype.hasOwnProperty.call(namespaceValues, KEY)) {
+        return "";
+      }
+      return namespaceValues[KEY];
+    }
+
+    set({ KEY, VALUE }) {
+      if (!validNamespace()) {
+        return "";
+      }
+      namespaceValues[Scratch.Cast.toString(KEY)] = VALUE;
+      saveToLocalStorage();
+    }
+
+    remove({ KEY }) {
+      if (!validNamespace()) {
+        return "";
+      }
+      delete namespaceValues[Scratch.Cast.toString(KEY)];
+      saveToLocalStorage();
+    }
+
+    removeAll() {
+      if (!validNamespace()) {
+        return "";
+      }
+      namespaceValues = Object.create(null);
+      saveToLocalStorage();
+    }
+  }
+
+  Scratch.extensions.register(new LocalStorage());
+})(Scratch);
+
+/*
+/ Name: Local Storage
+// ID: localstorage
+// Description: Store data persistently. Like cookies, but better.
+// By: infernostars
+// By: GarboMuffin
+// License: MIT AND MPL-2.0
+
+(function (Scratch) {
+  "use strict";
+
+  if (!Scratch.extensions.unsandboxed) {
+    throw new Error("Local Storage must be run unsandboxed");
+  }
+
+  const getNamespace = () =>
+    Scratch.vm.runtime.extensionStorage["localstorage"]?.namespace;
+
+  /**
+   * @param {string} newNamespace
+   *
+  const setNamespace = (newNamespace) => {
+    Scratch.vm.runtime.extensionStorage["localstorage"] = {
+      namespace: newNamespace,
+    };
+    readFromStorage();
+
     // We can generate namespace before we have fully loaded
     if (Scratch.vm.extensionManager.isExtensionLoaded("localstorage")) {
       Scratch.vm.extensionManager.refreshBlocks("localstorage");
@@ -36,7 +284,7 @@
   /**
    * Cached in memory for performance.
    * @type {Record<string, string|number|boolean>}
-   */
+   *
   let namespaceValues = Object.create(null);
 
   const readFromStorage = () => {
@@ -388,3 +636,4 @@
 
   Scratch.extensions.register(new LocalStorage());
 })(Scratch);
+*/
