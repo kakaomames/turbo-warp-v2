@@ -100,7 +100,11 @@
               { text: 'Mail', value:'Mail1' },
               { text: '翻訳', value:'Transe' },
               { text: 'sheet', value:'Sheet' },
-              { text: 'カレンダー', value:'Calender' }
+              { text: 'カレンダー', value:'Calender' },
+              { text: 'chromoting', value:'chromoting' },
+              { text: 'chromoting.identity', value:'chromoting.identity' },
+              { text: 'googletalk', value:'googletalk' },
+              { text: 'userinfo.email', value:'userinfo.email' }
             ]
           }
         }
@@ -132,6 +136,10 @@
         case 'ytchannel':       return 'https://www.googleapis.com/auth/dataportability.youtube.channel';
         case 'ytcoment':        return 'https://www.googleapis.com/auth/dataportability.youtube.comments';
         case 'ytclip':          return 'https://www.googleapis.com/auth/dataportability.youtube.clips';
+        case 'chromoting':      return 'https://www.googleapis.com/auth/chromoting';
+        case 'chromoting.identity': return 'https://www.googleapis.com/auth/chromoting.identity';
+        case 'googletalk':      return 'https://www.googleapis.com/auth/googletalk';
+        case 'userinfo.email':  return 'https://www.googleapis.com/auth/userinfo.email';
         default: return scopeKey;
       }
     }
